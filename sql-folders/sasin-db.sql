@@ -1,7 +1,7 @@
-Create Database SasinShopDB
+Create Database sasin_db
 Go
 
-Use SasinShopDB
+Use sasin_db
 Go
 
 --------------------------------------------- CREATE TABLE ---------------------------------------------
@@ -84,7 +84,6 @@ Create Table Orders
 	OrderId				Varchar(20),
 	CustomerId			Varchar(10),
 	OrderDate			Datetime,
-	ShipDate			Datetime,
 	TransactStatusId	Int,
 	Deleted				Bit,
 	Paid				Bit,
