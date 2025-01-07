@@ -124,7 +124,7 @@ Create Table Posts
 	Contents		Nvarchar(255),
 	Thumbnail		Varchar(255),
 	Published		Bit,
-	CreatedDate		Datetime,
+	DateCreated		Datetime,
 	Author			Nvarchar(255),
 	Tags			Nvarchar(MAX),
 	IsHot			Bit,
@@ -142,8 +142,7 @@ Create Table Pages
 	Thumbnail	Varchar(255),
 	Published	Bit,
 	Title		Nvarchar(255),
-	Alias		Nvarchar(255),
-	CreatedAt	DateTime,
+	DateCreated	DateTime,
 	Ordering	Int,
 	Constraint PK_Pages Primary Key(PageId)
 );
