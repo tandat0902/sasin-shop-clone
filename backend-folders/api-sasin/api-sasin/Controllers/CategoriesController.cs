@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using api_sasin.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using api_sasin.Models;
 
 namespace api_sasin.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public ProductsController(IConfiguration configuration)
+        public CategoriesController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -21,8 +21,7 @@ namespace api_sasin.Controllers
         {
             try
             {
-                string query = "Select * From Products";
-
+                string query = "Select * From Categories";
                 DataTable myTable = new DataTable();
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
 
@@ -42,25 +41,22 @@ namespace api_sasin.Controllers
             catch (Exception ex)
             {
                 return new JsonResult($"Error: {ex.Message}");
-            }
+            }          
         }
 
         [HttpPost]
-        public async Task<JsonResult> Post(Products _products)
+        public async Task<JsonResult> Post(Categories _categories)
         {
             try
             {
-                string query = @"Insert into Products
+                string query = @"Insert into Categories
                 (
-                    ProductId, ProductName, UnitPrice, Discount, Description, Active, 
-                    HomeFlag, DateCreated, DateModified, UnitsInStock, CategoryId
+                    CategoryId, CategoryName, Thumnail, Published, Description
                 )
                 values 
                 (
-                    @ProductId, @ProductName, @UnitPrice, @Discount, @Description, @Active, 
-                    @HomeFlag, @DateCreated, @DateModified, @UnitsInStock, @CategoryId
+                    @CategoryId, @CategoryName, @Thumnail, @Published, @Description
                 )";
-
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
                 using (SqlConnection myConnection = new SqlConnection(sqlDataSource))
                 {
@@ -68,17 +64,11 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@ProductId", _products.ProductId);
-                        myCommand.Parameters.AddWithValue("@ProductName", _products.ProductName);
-                        myCommand.Parameters.AddWithValue("@UnitPrice", _products.UnitPrice);
-                        myCommand.Parameters.AddWithValue("@Discount", _products.Discount);
-                        myCommand.Parameters.AddWithValue("@Description", _products.Description);
-                        myCommand.Parameters.AddWithValue("@Active", _products.Active);
-                        myCommand.Parameters.AddWithValue("@HomeFlag", _products.HomeFlag);
-                        myCommand.Parameters.AddWithValue("@DateCreated", _products.DateCreated);
-                        myCommand.Parameters.AddWithValue("@DateModified", _products.DateModified);
-                        myCommand.Parameters.AddWithValue("@UnitsInStock", _products.UnitsInStock);
-                        myCommand.Parameters.AddWithValue("@CategoryId", _products.CategoryId);
+                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
+                        myCommand.Parameters.AddWithValue("@CategoryName", _categories.CategoryName);
+                        myCommand.Parameters.AddWithValue("@Thumnail", _categories.Thumnail);
+                        myCommand.Parameters.AddWithValue("@Published", _categories.Published);
+                        myCommand.Parameters.AddWithValue("@Description", _categories.Description);
 
                         // Thực thi lệnh
                         await myCommand.ExecuteNonQueryAsync();
@@ -86,28 +76,23 @@ namespace api_sasin.Controllers
                 }
                 return new JsonResult("Added successfully");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new JsonResult($"Error: {ex.Message}");
             }
         }
 
         [HttpPut]
-        public async Task<JsonResult> Put(Products _products)
+        public async Task<JsonResult> Put(Categories _categories)
         {
             try
             {
-                string query = @"Update Products set 
-                ProductName = @ProductName,
-                UnitPrice = @UnitPrice,
-                Discount = @Discount,
-                Description = @Description,
-                Active = @Active,
-                HomeFlag = @HomeFlag,
-                DateModified = @DateModified,
-                UnitsInStock = @UnitsInStock,
-                CategoryId = @CategoryId
-                where ProductId = @ProductId";
+                string query = @"Update Categories set 
+                CategoryName = @CategoryName,
+                Thumnail = @Thumnail,
+                Published = @Published,
+                Description = @Description
+                where CategoryId = @CategoryId";
 
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
                 int rowsAffected;
@@ -117,16 +102,11 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@ProductId", _products.ProductId);
-                        myCommand.Parameters.AddWithValue("@ProductName", _products.ProductName);
-                        myCommand.Parameters.AddWithValue("@UnitPrice", _products.UnitPrice);
-                        myCommand.Parameters.AddWithValue("@Discount", _products.Discount);
-                        myCommand.Parameters.AddWithValue("@Description", _products.Description);
-                        myCommand.Parameters.AddWithValue("@Active", _products.Active);
-                        myCommand.Parameters.AddWithValue("@HomeFlag", _products.HomeFlag);
-                        myCommand.Parameters.AddWithValue("@DateModified", _products.DateModified);
-                        myCommand.Parameters.AddWithValue("@UnitsInStock", _products.UnitsInStock);
-                        myCommand.Parameters.AddWithValue("@CategoryId", _products.CategoryId);
+                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
+                        myCommand.Parameters.AddWithValue("@CategoryName", _categories.CategoryName);
+                        myCommand.Parameters.AddWithValue("@Thumnail", _categories.Thumnail);
+                        myCommand.Parameters.AddWithValue("@Published", _categories.Published);
+                        myCommand.Parameters.AddWithValue("@Description", _categories.Description);
 
                         // Thực thi lệnh
                         rowsAffected = await myCommand.ExecuteNonQueryAsync();
@@ -139,7 +119,7 @@ namespace api_sasin.Controllers
                 }
                 else
                 {
-                    return new JsonResult("No record found with the given ProductId");
+                    return new JsonResult("No record found with the given CategoryId");
                 }
             }
             catch (Exception ex)
@@ -149,12 +129,12 @@ namespace api_sasin.Controllers
         }
 
         [HttpDelete]
-        public async Task<JsonResult> Delete(Products _products)
+        public async Task<JsonResult> Delete(Categories _categories)
         {
             try
             {
-                string query = @"Delete from Products 
-                where ProductId = @ProductId";
+                string query = @"Delete from Categories 
+                where CategoryId = @CategoryId";
 
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
                 int rowsAffected;
@@ -164,7 +144,7 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@ProductId", _products.ProductId);
+                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
 
                         // Thực thi lệnh
                         rowsAffected = await myCommand.ExecuteNonQueryAsync();
@@ -177,13 +157,13 @@ namespace api_sasin.Controllers
                 }
                 else
                 {
-                    return new JsonResult("No record found with the given ProductId");
+                    return new JsonResult("No record found with the given CategoryId");
                 }
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 547)
             {
                 // Lỗi ràng buộc khóa ngoại
-                return new JsonResult(new { Error = "Cannot delete this product because it is referenced by other records." });
+                return new JsonResult(new { Error = "Cannot delete this category because it is referenced by other records." });
             }
             catch (Exception ex)
             {
