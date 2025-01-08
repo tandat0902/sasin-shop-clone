@@ -2,16 +2,17 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using System.Data;
 
 namespace api_sasin.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        public CategoriesController(IConfiguration configuration)
+        public AccountsController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
@@ -21,17 +22,17 @@ namespace api_sasin.Controllers
         {
             try
             {
-                string query = "Select * From Categories";
+                string query = "Select * from Accounts";
 
                 DataTable myTable = new DataTable();
-                string sqlDataSource = _configuration.GetConnectionString("sasin_db");
+                string sqlDataSourse = _configuration.GetConnectionString("sasin_db");
 
-                using (SqlConnection myConnection = new SqlConnection(sqlDataSource))
+                using(SqlConnection myConnection =  new SqlConnection(sqlDataSourse))
                 {
-                    await myConnection.OpenAsync();
-                    using (SqlCommand myCommand = new SqlCommand(query, myConnection))
+                    await myConnection.OpenAsync(); 
+                    using(SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
-                        using (SqlDataReader myReader = await myCommand.ExecuteReaderAsync())
+                        using(SqlDataReader myReader = await myCommand.ExecuteReaderAsync())
                         {
                             myTable.Load(myReader);
                         }
@@ -42,21 +43,23 @@ namespace api_sasin.Controllers
             catch (Exception ex)
             {
                 return new JsonResult($"Error: {ex.Message}");
-            }          
+            }
         }
 
         [HttpPost]
-        public async Task<JsonResult> Post(Categories _categories)
+        public async Task<JsonResult> Post(Accounts _accounts)
         {
             try
             {
-                string query = @"Insert into Categories
+                string query = @"Insert into Accounts
                 (
-                    CategoryId, CategoryName, Thumnail, Published, Description
+                    AccountId, LoginName, Password, LastLogin,
+                    DateCreated, Salt, Active
                 )
                 values 
                 (
-                    @CategoryId, @CategoryName, @Thumnail, @Published, @Description
+                    @AccountId, @LoginName, @Password, @LastLogin,
+                    @DateCreated, @Salt, @Active
                 )";
 
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
@@ -66,11 +69,13 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
-                        myCommand.Parameters.AddWithValue("@CategoryName", _categories.CategoryName);
-                        myCommand.Parameters.AddWithValue("@Thumnail", _categories.Thumnail);
-                        myCommand.Parameters.AddWithValue("@Published", _categories.Published);
-                        myCommand.Parameters.AddWithValue("@Description", _categories.Description);
+                        myCommand.Parameters.AddWithValue("@AccountId", _accounts.AccountId);
+                        myCommand.Parameters.AddWithValue("@LoginName", _accounts.LoginName);
+                        myCommand.Parameters.AddWithValue("@Password", _accounts.Password);
+                        myCommand.Parameters.AddWithValue("@LastLogin", _accounts.LastLogin);
+                        myCommand.Parameters.AddWithValue("@DateCreated", _accounts.DateCreated);
+                        myCommand.Parameters.AddWithValue("@Salt", _accounts.Salt);
+                        myCommand.Parameters.AddWithValue("@Active", _accounts.Active);
 
                         // Thực thi lệnh
                         await myCommand.ExecuteNonQueryAsync();
@@ -85,16 +90,17 @@ namespace api_sasin.Controllers
         }
 
         [HttpPut]
-        public async Task<JsonResult> Put(Categories _categories)
+        public async Task<JsonResult> Put(Accounts _accounts)
         {
             try
             {
-                string query = @"Update Categories set 
-                CategoryName = @CategoryName,
-                Thumnail = @Thumnail,
-                Published = @Published,
-                Description = @Description
-                where CategoryId = @CategoryId";
+                string query = @"Update Accounts set 
+                LoginName = @LoginName,
+                Password = @Password,
+                LastLogin = @LastLogin,
+                Salt = @Salt,
+                Active = @Active
+                where AccountId = @AccountId";
 
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
                 int rowsAffected;
@@ -104,11 +110,12 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
-                        myCommand.Parameters.AddWithValue("@CategoryName", _categories.CategoryName);
-                        myCommand.Parameters.AddWithValue("@Thumnail", _categories.Thumnail);
-                        myCommand.Parameters.AddWithValue("@Published", _categories.Published);
-                        myCommand.Parameters.AddWithValue("@Description", _categories.Description);
+                        myCommand.Parameters.AddWithValue("@AccountId", _accounts.AccountId);
+                        myCommand.Parameters.AddWithValue("@LoginName", _accounts.LoginName);
+                        myCommand.Parameters.AddWithValue("@Password", _accounts.Password);
+                        myCommand.Parameters.AddWithValue("@LastLogin", _accounts.LastLogin);
+                        myCommand.Parameters.AddWithValue("@Salt", _accounts.Salt);
+                        myCommand.Parameters.AddWithValue("@Active", _accounts.Active);
 
                         // Thực thi lệnh
                         rowsAffected = await myCommand.ExecuteNonQueryAsync();
@@ -121,7 +128,7 @@ namespace api_sasin.Controllers
                 }
                 else
                 {
-                    return new JsonResult("No record found with the given CategoryId");
+                    return new JsonResult("No record found with the given AccountId");
                 }
             }
             catch (Exception ex)
@@ -131,12 +138,12 @@ namespace api_sasin.Controllers
         }
 
         [HttpDelete]
-        public async Task<JsonResult> Delete(Categories _categories)
+        public async Task<JsonResult> Delete(Accounts _accounts)
         {
             try
             {
-                string query = @"Delete from Categories 
-                where CategoryId = @CategoryId";
+                string query = @"Delete from Accounts 
+                where AccountId = @AccountId";
 
                 string sqlDataSource = _configuration.GetConnectionString("sasin_db");
                 int rowsAffected;
@@ -146,7 +153,7 @@ namespace api_sasin.Controllers
                     using (SqlCommand myCommand = new SqlCommand(query, myConnection))
                     {
                         // Thêm các tham số vào truy vấn
-                        myCommand.Parameters.AddWithValue("@CategoryId", _categories.CategoryId);
+                        myCommand.Parameters.AddWithValue("@AccountId", _accounts.AccountId);
 
                         // Thực thi lệnh
                         rowsAffected = await myCommand.ExecuteNonQueryAsync();
@@ -159,13 +166,13 @@ namespace api_sasin.Controllers
                 }
                 else
                 {
-                    return new JsonResult("No record found with the given CategoryId");
+                    return new JsonResult("No record found with the given AccountId");
                 }
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 547)
             {
                 // Lỗi ràng buộc khóa ngoại
-                return new JsonResult(new { Error = "Cannot delete this category because it is referenced by other records." });
+                return new JsonResult(new { Error = "Cannot delete this account because it is referenced by other records." });
             }
             catch (Exception ex)
             {
